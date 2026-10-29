@@ -1,0 +1,10 @@
+
+version: 2
+
+sources:
+  - name: nyc_homework_raw_data
+    database: om-datawha
+    schema: nyc_homework_raw_data
+    tables:
+      - name: source_nyc_dob_job_apps
+      - name: source_service_requests_homework

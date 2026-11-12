@@ -35,8 +35,26 @@ clean-targets:         # directories to be removed by `dbt clean`
 # continue to be built as views. These settings can be overridden in the individual model files
 # using the `{{ config(...) }}` macro.
 
+
 models:
   nyc_analytics:
-    # Applies to all files under models/example/
-    example:
-      +materialized: table
+    +materialized: table
+
+    group_work:
+      staging:
+        +materialized: table
+        +schema: cis9440_group5_staging
+
+      marts:
+        +materialized: table
+        +schema: cis9440_group5_warehouse_marts
+
+        conformed:
+          +materialized: table
+
+        mv_collisions:
+          +materialized: table
+
+        311_traffic:
+          +materialized: table
+

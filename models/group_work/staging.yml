@@ -1,0 +1,126 @@
+
+version: 2
+
+models:
+  - name: stg_311_traffic
+    description: >
+      Cleans and standardizes NYC 311 traffic-safety
+      service requests for analysis alongside
+      motor vehicle collision data.
+      Each row represents one unique service request.
+    columns:
+      - name: request_id
+        description: Unique identifier for each 311 service request.
+        data_tests:
+          - unique
+          - not_null
+
+      - name: created_date
+        description: Date and time when the 311 service request was created.
+        data_tests:
+          - not_null
+
+      - name: closed_date
+        description: Date and time when the 311 service request was closed. May be null if the request remains open.
+
+      - name: agency
+        description: NYC agency responsible for the service request.
+
+      - name: agency_name
+        description: Full name of the agency handling the request.
+
+      - name: complaint_type
+        description: Category of the traffic-related complaint.
+
+      - name: descriptor
+        description: Additional details describing the complaint.
+
+      - name: status
+        description: Current status of the service request, standardized to uppercase.
+
+      - name: zip
+        description: >
+          ZIP code associated with the 311 service request.
+          Invalid or missing ZIP codes are converted to null.
+          Used to compare traffic complaints and collisions
+          by geographic area.
+
+      - name: borough
+        description: >
+          NYC borough associated with the service request.
+          Borough names are standardized for consistent
+          geographic analysis.
+          Unrecognized values are labeled UNKNOWN or CITYWIDE.
+
+      - name: incident_address
+        description: Street address where the 311 complaint occurred.
+
+      - name: street_name
+        description: Street associated with the service request.
+
+      - name: cross_street_1
+        description: First nearby cross street.
+
+      - name: cross_street_2
+        description: Second nearby cross street.
+
+      - name: latitude
+        description: Geographic latitude of the reported location.
+
+      - name: longitude
+        description: Geographic longitude of the reported location.
+
+      - name: method_of_submission
+        description: >
+          Channel used to submit the 311 service request,
+          such as phone, online, or mobile.
+
+      - name: _stg_loaded_at
+        description: >
+          Timestamp indicating when the staging model
+          processed the record in dbt.
+
+  - name: stg_mv_collisions
+    description: >
+      Cleans and standardizes NYC motor vehicle collision
+      records for analysis alongside 311 traffic-safety requests.
+      Each row represents one unique collision.
+    columns:
+      - name: collision_id
+        description: Unique identifier for each motor vehicle collision.
+        data_tests:
+          - unique
+          - not_null
+
+      - name: crash_date
+        description: Date when the motor vehicle collision occurred.
+
+      - name: crash_time
+        description: Reported time of the collision.
+
+      - name: borough
+        description: >
+          NYC borough where the collision occurred.
+          Borough names are standardized.
+          Missing or unrecognized boroughs remain null.
+
+      - name: zip
+        description: >
+          Five-digit ZIP code associated with the collision.
+          Invalid or missing ZIP codes are converted to null.
+          Used for geographic comparisons with 311 requests.
+
+      - name: latitude
+        description: >
+          Geographic latitude of the collision location.
+          Invalid or missing values are stored as null.
+
+      - name: longitude
+        description: >
+          Geographic longitude of the collision location.
+          Invalid or missing values are stored as null.
+
+      - name: _stg_loaded_at
+        description: >
+          Timestamp indicating when dbt processed
+          the collision record.

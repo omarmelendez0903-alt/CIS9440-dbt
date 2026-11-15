@@ -1,0 +1,124 @@
+version: 2
+
+models:
+  - name: dim_contributing_factor
+    description: >
+      Dimension table containing contributing factors associated
+      with NYC motor vehicle collisions. Combines contributing
+      factors from all five vehicle positions into one list.
+      Groups factors into categories such as Speed,
+      Driver Attention, Traffic Control, and Environment.
+      Includes mappings to related NYC 311 complaint categories.
+
+    columns:
+      - name: contributing_factor_key
+        description: >
+          Surrogate primary key generated from the contributing
+          factor. The value -1 represents an unknown factor.
+        data_tests:
+          - unique
+          - not_null
+
+      - name: contributing_factor
+        description: >
+          Contributing factor reported for a motor vehicle collision.
+
+      - name: factor_category
+        description: >
+          Analytical grouping of contributing factors,
+          including Speed, Traffic Control, Driver Attention,
+          Driving Maneuver, Vehicle Condition, Environment,
+          Unknown, and Other.
+
+      - name: maps_to_311_category
+        description: >
+          Maps selected collision contributing factors to
+          related NYC 311 traffic-safety complaint categories.
+          No 311 match indicates no defined mapping.
+
+  - name: dim_vehicle_type
+    description: >
+      Vehicle type dimension for NYC motor vehicle collisions.
+      Combines vehicle types from five vehicle positions and
+      standardizes them into categories for analysis.
+      Identifies trucks and buses as large vehicles.
+
+    columns:
+      - name: vehicle_type_key
+        description: >
+          Surrogate primary key generated from the vehicle type.
+          The value -1 represents an unknown vehicle type.
+        data_tests:
+          - unique
+          - not_null
+
+      - name: vehicle_type_raw
+        description: >
+          Original vehicle type standardized to uppercase.
+
+      - name: vehicle_type_clean
+        description: >
+          Grouped vehicle category such as Sedan, SUV,
+          Truck, Bus, Emergency, or Other.
+
+      - name: is_large_vehicle
+        description: >
+          Boolean flag indicating whether the vehicle
+          belongs to the Truck or Bus category.
+
+  - name: fact_collision
+    description: >
+      Fact table for NYC motor vehicle collisions.
+      Each row represents one collision identified by collision_id.
+      Connects collision records to date, location,
+      contributing factor, and vehicle type dimensions.
+      Includes injury and fatality measures.
+
+    columns:
+      - name: collision_id
+        description: Unique identifier for each collision.
+        data_tests:
+          - unique
+          - not_null
+
+      - name: date_key
+        description: Foreign key referencing dim_date.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_date')
+                field: date_key
+
+      - name: location_key
+        description: Foreign key referencing dim_location.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_location')
+                field: location_key
+
+      - name: contri_factor_key
+        description: Foreign key referencing dim_contributing_factor.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_contributing_factor')
+                field: contributing_factor_key
+
+      - name: vehicle_type_key
+        description: Foreign key referencing dim_vehicle_type.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_vehicle_type')
+                field: vehicle_type_key
+
+      - name: number_of_persons_injured
+        description: Total number of people injured in the collision.
+
+      - name: number_of_persons_killed
+        description: Total number of people killed in the collision.

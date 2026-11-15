@@ -1,0 +1,199 @@
+version: 2
+
+models:
+  - name: dim_agency
+    description: >
+      Agency dimension for NYC 311 traffic-safety requests.
+      Includes agency names and categories for reporting.
+      Each agency is identified by an agency_key.
+
+    columns:
+      - name: agency_key
+        description: >
+          Surrogate key generated from the agency code.
+          The value -1 represents an unknown agency.
+        data_tests:
+          - unique
+          - not_null
+
+      - name: agency
+        description: Agency code, such as NYPD or DOT.
+
+      - name: agency_name
+        description: Full name of the agency.
+
+      - name: agency_category
+        description: >
+          Agency grouping used for analysis.
+          NYPD is Enforcement, DOT is Infrastructure,
+          and all other agencies are Other.
+
+
+  - name: dim_bridge
+    description: >
+      Bridge and highway dimension for NYC 311 service requests.
+      Contains bridge names, directions, ramps, and segments.
+      Includes an unknown record for requests without bridge information.
+
+    columns:
+      - name: bridge_key
+        description: >
+          Surrogate key generated from the bridge and highway attributes.
+          The value -1 represents missing bridge information.
+        data_tests:
+          - unique
+          - not_null
+
+      - name: bridge_highway_name
+        description: Name of the bridge or highway.
+
+      - name: bridge_highway_direction
+        description: Direction of travel on the bridge or highway.
+
+      - name: road_ramp
+        description: Road or ramp information.
+
+      - name: bridge_highway_segment
+        description: Bridge or highway segment.
+
+
+  - name: dim_complaint
+    description: >
+      Complaint dimension for NYC 311 traffic-safety requests.
+      Contains complaint types and their associated descriptors.
+      Each distinct combination has its own complaint_key.
+      Includes an unknown record for missing complaint information.
+
+    columns:
+      - name: complaint_key
+        description: >
+          Surrogate key generated from complaint type,
+          descriptor, and descriptor_2.
+          The value -1 represents an unknown complaint.
+        data_tests:
+          - unique
+          - not_null
+
+      - name: complaint_type
+        description: Type of complaint reported through NYC 311.
+
+      - name: descriptor
+        description: Additional details describing the complaint.
+
+      - name: descriptor_2
+        description: Secondary description of the complaint.
+
+  - name: dim_local_gov
+    description: >
+      Local government dimension for NYC 311 service requests.
+      Identifies combinations of community boards, City Council
+      districts, and police precincts.
+      Includes an unknown record for missing government information.
+
+    columns:
+      - name: local_gov_key
+        description: >
+          Surrogate key generated from community board,
+          council district, and police precinct.
+          The value -1 represents unknown information.
+        data_tests:
+          - unique
+          - not_null
+
+      - name: community_board
+        description: NYC community board associated with the request.
+
+      - name: council_district
+        description: City Council district associated with the request.
+
+      - name: police_precinct
+        description: NYPD precinct associated with the request.
+
+  - name: dim_resolution
+    description: >
+      Resolution dimension for NYC 311 service requests.
+      Stores distinct resolution descriptions explaining
+      how service requests were addressed or resolved.
+      Includes an unknown record for missing resolutions.
+
+    columns:
+      - name: resolution_key
+        description: >
+          Surrogate key generated from the resolution description.
+          The value -1 represents an unknown resolution.
+        data_tests:
+          - unique
+          - not_null
+
+      - name: resolution_description
+        description: >
+          Description of how the 311 service request was resolved.
+          Unknown is used when no resolution is available.
+
+  - name: dim_status
+    description: >
+      Status dimension for NYC 311 service requests.
+      Stores distinct request statuses used to track
+      whether a complaint is open, closed, or in another status.
+      Includes an unknown record for missing statuses.
+
+    columns:
+      - name: status_key
+        description: >
+          Surrogate key generated from the request status.
+          The value -1 represents an unknown status.
+        data_tests:
+          - unique
+          - not_null
+
+      - name: status
+        description: >
+          Current status of the NYC 311 service request.
+          Unknown is used when status information is missing.
+
+  - name: fact_service_request
+    description: >
+      Factless fact table containing one row per NYC 311
+      traffic-safety service request. Connects requests
+      to date, location, agency, complaint, resolution,
+      local government, bridge, and status dimensions.
+      Requests can be counted to analyze complaint patterns.
+
+    columns:
+      - name: request_id
+        description: Unique identifier for each 311 service request.
+        data_tests:
+          - unique
+          - not_null
+
+      - name: created_date_key
+        description: Foreign key to dim_date for request creation.
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_date')
+                field: date_key
+
+      - name: closed_date_key
+        description: Foreign key to dim_date for request closure.
+
+      - name: location_key
+        description: Foreign key to dim_location.
+
+      - name: agency_key
+        description: Foreign key to dim_agency.
+
+      - name: complaint_key
+        description: Foreign key to dim_complaint.
+
+      - name: resolution_key
+        description: Foreign key to dim_resolution.
+
+      - name: local_gov_key
+        description: Foreign key to dim_local_gov.
+
+      - name: bridge_key
+        description: Foreign key to dim_bridge.
+
+      - name: status_key
+        description: Foreign key to dim_status.

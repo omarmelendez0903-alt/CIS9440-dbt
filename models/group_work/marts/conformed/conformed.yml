@@ -1,0 +1,63 @@
+
+version: 2
+
+models:
+  - name: dim_date
+    description: >
+      Shared date dimension used to analyze NYC 311 traffic
+      requests and motor vehicle collisions.
+      Includes calendar attributes and NYC fiscal years.
+      Each valid date has a unique date_key.
+      A special row with date_key -1 represents missing dates.
+
+    columns:
+      - name: date_key
+        description: >
+          Surrogate primary key generated from full_date.
+          The value -1 represents an unknown date.
+        data_tests:
+          - unique
+          - not_null
+
+      - name: full_date
+        description: >
+          Calendar date associated with a NYC 311 service request
+          or motor vehicle collision. Can be null for the
+          special unknown-date record.
+
+      - name: year
+        description: >
+          Calendar year extracted from full_date.
+
+      - name: quarter
+        description: >
+          Calendar quarter (1 through 4) extracted
+          from full_date.
+
+      - name: day_of_month
+        description: >
+          Numeric day of the month (1 through 31)
+          extracted from full_date.
+
+      - name: day_of_week
+        description: >
+          Numeric day of the week extracted from full_date.
+          In BigQuery, Sunday is 1 and Saturday is 7.
+
+      - name: weekday_name
+        description: >
+          Full name of the day of the week, such as
+          Monday or Saturday, derived from full_date.
+
+      - name: is_weekend
+        description: >
+          Boolean indicator showing whether the date
+          falls on Saturday or Sunday.
+          TRUE means weekend and FALSE means weekday.
+
+      - name: fiscal_year
+        description: >
+          NYC fiscal year associated with full_date.
+          The fiscal year begins July 1 and ends June 30.
+          Dates from July through December belong to
+          the following fiscal year.
